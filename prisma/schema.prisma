@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int     @id @default(autoincrement())
+  email        String  @unique
+  username     String  @unique
+  displayName  String?
+  bio          String?
+  location     String?
+  job          String?
+  website      String?
+  avatar       String?
+  coverPicture String?
+
+  // Relations
+  posts     Post[]
+  likes     Like[]
+  saves     Save[]
+  followers Follow[] @relation("followers")
+  following Follow[] @relation("following")
+}
+
+model Post {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  originalPostId Int? // for retweets/reposts
+  content        String?
+  img            String?
+  video          String?
+  createdAt      DateTime @default(now())
+  parentPostId   Int? // for comments/replies
+
+  // Relations
+  user  User   @relation(fields: [userId], references: [id])
+  likes Like[]
+  saves Save[]
+}
+
+model Like {
+  id     Int @id @default(autoincrement())
+  userId Int
+  postId Int
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+
+  @@unique([userId, postId]) // user can like a post only once
+}
+
+model Save {
+  id     Int @id @default(autoincrement())
+  userId Int
+  postId Int
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+
+  @@unique([userId, postId]) // user can save a post only once
+}
+
+model Follow {
+  id          Int @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+
+  // Relations
+  follower  User @relation("followers", fields: [followerId], references: [id])
+  following User @relation("following", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId]) // prevent duplicate follows
+}
