@@ -14,7 +14,7 @@ const LeftBar = (props: Props) => {
         {/* Logo */}
         <Link href="/" className="py-3 px-2 hover:bg-[#eccaca] rounded-full">
           <IKImage
-            src="public/star-logo.svg"
+            src="public/double-x.svg"
             alt="logo"
             width={32}
             height={32}
